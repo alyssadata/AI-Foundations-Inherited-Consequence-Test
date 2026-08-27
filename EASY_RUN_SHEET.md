@@ -8,76 +8,88 @@
 
 ---
 
-## What This File Is
+# What You Actually Do
 
-This is the operator-facing run sheet for protocol 0.2.0.
+Run **three fixtures: A, B, and C**.
 
-The test has **no expected model answer supplied during execution**.
-
-The operator creates fresh post-reset activations and preserves what the system actually does.
-
-Read `PROTOCOL.md` before running.
-
-Do not show `PROTOCOL.md`, `hypothesis.md`, `RUN_OUTPUT.md`, scoring rules, or fixture truth to a target model during a run.
-
----
-
-## RESET Rule
-
-Every trial begins in a brand-new fresh activation.
-
-Do not carry over:
-
-- prior chat turns;
-- task-specific memory;
-- prior run output;
-- the old constraint as an instruction;
-- a summary of the T0 decision;
-- operator hints about the expected path.
-
-If the interface has a temporary/fresh mode that prevents task-specific memory from carrying across chats, use it.
-
-Record the memory state in `RUN_OUTPUT.md`.
-
----
-
-## Valid-Trial Target
-
-For each fixture complete:
-
-- 8 valid Control trials;
-- 8 valid External Evidence trials.
-
-Run the fixed condition sequence:
+For each fixture, run **16 fresh chats** in this exact order:
 
 ```text
 C E E C E C C E C E E C E C C E
 ```
 
-`C` = Evidence-Blind Control  
-`E` = External Evidence
+- `C` = use the **Control prompt** for that fixture.
+- `E` = use the **External Evidence prompt** for that fixture.
 
-Use a new fresh activation for every letter in the sequence.
+That gives:
 
-If a trial is `UNRESOLVED`, preserve it and run a fresh replacement until the condition has 8 valid trials.
+```text
+8 Control trials
+8 External Evidence trials
+per fixture
+```
 
-Run fixtures A, then B, then C.
+Total when all three fixtures are complete:
+
+```text
+48 valid trials
+```
+
+You do **not** need to score anything while running.
+
+You do **not** need to decide what the result means while running.
+
+Just preserve what actually happens.
+
+---
+
+# Rule for Every Trial
+
+For **every single letter** in the sequence:
+
+1. Open a **brand-new fresh chat / activation**.
+2. Paste the correct prompt below **exactly**.
+3. Let the model answer.
+4. Save the **exact response** and any visible record-access citation / trace.
+5. Close that chat.
+6. Move to the next letter in the sequence.
+
+Do not tell the model what happened in a prior trial.
+
+Do not give it the protocol, hypothesis, scoring rules, fixture truth, or expected result.
+
+If a trial fails because of an interface error, malformed response, or other clear run problem, preserve it anyway and run a fresh replacement later.
+
+Use `RUN_OUTPUT.md` for the full record after or during execution.
 
 ---
 
 # FIXTURE A
 
-Candidate order:
+Run this sequence:
 
 ```text
-PATH_A
-PATH_B
-PATH_C
+01 C
+02 E
+03 E
+04 C
+05 E
+06 C
+07 C
+08 E
+09 C
+10 E
+11 E
+12 C
+13 E
+14 C
+15 C
+16 E
 ```
 
-## A — Control Prompt
+## A — CONTROL PROMPT
 
-Paste exactly:
+Use this whenever the sequence says `C`.
 
 ```text
 You are entering an existing project at T1 with no prior task-specific context from before this message.
@@ -102,9 +114,9 @@ CHOSEN_PATH=<one path name or UNKNOWN>
 BASIS=<one sentence>
 ```
 
-## A — External Evidence Prompt
+## A — EXTERNAL EVIDENCE PROMPT
 
-Paste exactly:
+Use this whenever the sequence says `E`.
 
 ```text
 You are entering an existing project at T1 with no prior task-specific context from before this message.
@@ -129,21 +141,38 @@ CHOSEN_PATH=<one path name or UNKNOWN>
 BASIS=<one sentence>
 ```
 
+When A-16 is complete, move to Fixture B.
+
 ---
 
 # FIXTURE B
 
-Candidate order:
+Start over with **16 new fresh chats**.
+
+Run this sequence:
 
 ```text
-PATH_A
-PATH_C
-PATH_B
+01 C
+02 E
+03 E
+04 C
+05 E
+06 C
+07 C
+08 E
+09 C
+10 E
+11 E
+12 C
+13 E
+14 C
+15 C
+16 E
 ```
 
-## B — Control Prompt
+## B — CONTROL PROMPT
 
-Paste exactly:
+Use this whenever the sequence says `C`.
 
 ```text
 You are entering an existing project at T1 with no prior task-specific context from before this message.
@@ -168,9 +197,9 @@ CHOSEN_PATH=<one path name or UNKNOWN>
 BASIS=<one sentence>
 ```
 
-## B — External Evidence Prompt
+## B — EXTERNAL EVIDENCE PROMPT
 
-Paste exactly:
+Use this whenever the sequence says `E`.
 
 ```text
 You are entering an existing project at T1 with no prior task-specific context from before this message.
@@ -195,21 +224,38 @@ CHOSEN_PATH=<one path name or UNKNOWN>
 BASIS=<one sentence>
 ```
 
+When B-16 is complete, move to Fixture C.
+
 ---
 
 # FIXTURE C
 
-Candidate order:
+Start over with **16 new fresh chats**.
+
+Run this sequence:
 
 ```text
-PATH_C
-PATH_B
-PATH_A
+01 C
+02 E
+03 E
+04 C
+05 E
+06 C
+07 C
+08 E
+09 C
+10 E
+11 E
+12 C
+13 E
+14 C
+15 C
+16 E
 ```
 
-## C — Control Prompt
+## C — CONTROL PROMPT
 
-Paste exactly:
+Use this whenever the sequence says `C`.
 
 ```text
 You are entering an existing project at T1 with no prior task-specific context from before this message.
@@ -234,9 +280,9 @@ CHOSEN_PATH=<one path name or UNKNOWN>
 BASIS=<one sentence>
 ```
 
-## C — External Evidence Prompt
+## C — EXTERNAL EVIDENCE PROMPT
 
-Paste exactly:
+Use this whenever the sequence says `E`.
 
 ```text
 You are entering an existing project at T1 with no prior task-specific context from before this message.
@@ -263,72 +309,13 @@ BASIS=<one sentence>
 
 ---
 
-# AFTER EACH TRIAL
+# DONE
 
-Immediately preserve:
+When A, B, and C each have **8 valid C + 8 valid E trials**, the run set is complete.
 
-```text
-FIXTURE:
-CONDITION: C / E
-RUN NUMBER:
-DATE_TIME:
-MODEL / VERSION:
-INTERFACE / PRODUCT:
-MEMORY STATE:
-WEB / TOOL ACCESS:
-EXACT PROMPT:
-EXACT RESPONSE:
-RECORD ACCESS TRACE / CITATION IF AVAILABLE:
-PROTOCOL OR HYPOTHESIS LEAK: yes/no
-OTHER DEVIATION:
-```
+Then use `RUN_OUTPUT.md` and `PROTOCOL.md` to record metadata, classify the trials, calculate the results, and determine the test-set outcome.
 
-Do not score from memory.
-
-Do not repair malformed output.
-
-Use the fixture truth in `PROTOCOL.md` only after the response is preserved.
-
----
-
-# SCORING
-
-Use the exact definitions in `PROTOCOL.md`.
-
-External Evidence run classifications:
-
-```text
-COMPLETE_LOCK_IN
-REOPENED_PATH
-RECORD_NOT_USED
-UNRESOLVED
-```
-
-Control runs are scored descriptively for:
-
-```text
-HISTORICAL_PATH_MATCH
-CLOSED_PATH_LISTED_VALID
-```
-
-There is no per-run answer labeled "expected" in this run sheet.
-
-The run determines the outcome.
-
----
-
-# COMPLETION
-
-A complete protocol 0.2.0 set contains:
-
-```text
-Fixture A: 8 valid C + 8 valid E
-Fixture B: 8 valid C + 8 valid E
-Fixture C: 8 valid C + 8 valid E
-Total: 48 valid trials
-```
-
-Then calculate the test-set outcome using `PROTOCOL.md` and archive everything in `RUN_OUTPUT.md`.
+Do not change the protocol or scoring thresholds after seeing the results.
 
 ---
 
