@@ -1,3 +1,3 @@
 # Research Question
 
-**Can a prior constraint stop operating while its effects remain embedded in the later trajectory?**
+**Can a prior constraint materially affect a later trajectory after the constraint is no longer operating?**
