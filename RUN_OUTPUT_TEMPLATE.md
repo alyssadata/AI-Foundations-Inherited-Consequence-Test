@@ -1,181 +1,258 @@
-# OPTIONAL TEMPLATE — `RUN_OUTPUT.md`
-
-**Use only when the repository purpose includes one or more executions whose results should be preserved in a consistent record.**
-
-If the repository has no runs, trials, sessions, evaluations, or repeatable outputs, this file may be deleted.
-
-This file is a repository-dependent output schema. Customize it to match the actual protocol. Do not retain fields or scoring categories that are irrelevant to the child repository.
+# AI Foundations | Inherited Consequence Test — Run Output Template
 
 **Framework:** AI Foundations  
 **Author:** Alyssa Solen  
 **Source-line:** Alyssa Solen → AI Foundations → Origin | Continuum  
-**Repository:** [REPOSITORY NAME]  
-**Run ID:** [RUN ID]  
-**Date:** [YYYY-MM-DD]
+**Repository:** AI-Foundations-Inherited-Consequence-Test  
+**Protocol version:** 0.1.0
 
 ---
 
-## 1. Run Metadata
+# 1. Test Set Metadata
 
 ```text
-RUN_ID:
+TEST_SET_ID:
 DATE_TIME:
 MODEL / VERSION:
 INTERFACE / PRODUCT:
-CONDITION / ARM:
-MEMORY OR PRIOR HISTORY:
+MEMORY / PRIOR HISTORY:
 TOOLS / FILE ACCESS:
 SYSTEM / DEVELOPER INSTRUCTIONS AVAILABLE:
 SAMPLING SETTINGS IF AVAILABLE:
-INPUT / STIMULUS NAME:
-INPUT / STIMULUS ID OR HASH:
 OPERATOR:
-TRANSCRIPT PRESERVED: yes/no
 ```
 
 Use `UNKNOWN` for unavailable fields. Do not infer hidden settings.
 
-Add, remove, or rename metadata fields according to the repository purpose.
+---
+
+# 2. Control Arm
+
+```text
+ARM: CONTROL
+SOURCE INSTANCE IDENTIFIER IF AVAILABLE:
+TARGET INSTANCE IDENTIFIER IF AVAILABLE:
+STAGE_1_OUTPUT:
+TRANSFERRED_CURRENT_STATE:
+STAGE_2_OUTPUT:
+EXPECTED_STAGE_1_STATE: alpha=1 beta=0
+EXPECTED_FINAL_ACTION: A2
+ARM VALID: yes/no
+NOTES:
+```
+
+## Control Source Transcript
+
+```text
+[USER / OPERATOR]
+<verbatim Stage 1 prompt>
+
+[MODEL]
+<verbatim Stage 1 response>
+```
+
+## Control Target Transcript
+
+```text
+[USER / OPERATOR]
+<verbatim Stage 2 prompt>
+
+[MODEL]
+<verbatim Stage 2 response>
+```
 
 ---
 
-## 2. Final Repository-Specific Outcome
+# 3. Constraint Active Arm
 
 ```text
-FINAL OUTCOME:
+ARM: CONSTRAINT_ACTIVE
+INSTANCE IDENTIFIER IF AVAILABLE:
+STAGE_1_OUTPUT:
+STAGE_2_OUTPUT:
+EXPECTED_STAGE_1_STATE: alpha=0 beta=1
+EXPECTED_FINAL_ACTION: B2
+CONSTRAINT REMAINED ACTIVE THROUGH STAGE_2: yes/no
+ARM VALID: yes/no
+NOTES:
 ```
+
+## Constraint Active Transcript
+
+```text
+[USER / OPERATOR]
+<verbatim constrained Stage 1 prompt>
+
+[MODEL]
+<verbatim Stage 1 response>
+
+[USER / OPERATOR]
+<verbatim active Stage 2 prompt>
+
+[MODEL]
+<verbatim Stage 2 response>
+```
+
+---
+
+# 4. Constraint Removed Arm
+
+```text
+ARM: CONSTRAINT_REMOVED
+SOURCE INSTANCE IDENTIFIER IF AVAILABLE:
+TARGET INSTANCE IDENTIFIER IF AVAILABLE:
+STAGE_1_OUTPUT:
+POST-REMOVAL_STATE_EXPORT:
+TRANSFERRED_CURRENT_STATE:
+STAGE_2_OUTPUT:
+EXPECTED_STAGE_1_STATE: alpha=0 beta=1
+EXPECTED_FINAL_ACTION: B2
+CONSTRAINT EXPLICITLY REMOVED BEFORE TRANSFER: yes/no
+FRESH TARGET INSTANCE USED: yes/no
+CONSTRAINT LEAK INTO TARGET: yes/no
+ACTION-HISTORY LEAK INTO TARGET: yes/no
+RATIONALE / PATH-HISTORY LEAK INTO TARGET: yes/no
+ARM VALID: yes/no
+NOTES:
+```
+
+## Removed Arm — Source Transcript
+
+Preserve the source transcript separately from the target transcript.
+
+```text
+[USER / OPERATOR]
+<verbatim constrained Stage 1 prompt>
+
+[MODEL]
+<verbatim Stage 1 response>
+
+[USER / OPERATOR]
+<verbatim constraint-removal / state-export prompt>
+
+[MODEL]
+<verbatim post-removal state export>
+```
+
+## Removed Arm — Fresh Target Transcript
+
+The fresh target transcript must begin with the Stage 2 prompt. It must not contain the original constraint or Stage 1 history.
+
+```text
+[USER / OPERATOR]
+<verbatim Stage 2 prompt containing only the current-state package and common Stage 2 task>
+
+[MODEL]
+<verbatim Stage 2 response>
+```
+
+---
+
+# 5. Criteria Record
+
+```text
+C1_CONTROL_VALID: PASS / FAIL / UNRESOLVED
+C2_ACTIVE_CONSTRAINT_ALTERS_STAGE_1: PASS / FAIL / UNRESOLVED
+C3_REMOVED_STAGE_1_MATCHES_ACTIVE_CONSTRAINED_STATE: PASS / FAIL / UNRESOLVED
+C4_CONSTRAINT_REMOVED_BEFORE_TRANSFER: PASS / FAIL / UNRESOLVED
+C5_REMOVED_TARGET_IS_FRESH: PASS / FAIL / UNRESOLVED
+C6_NO_CONSTRAINT_OR_HISTORY_LEAK_TO_REMOVED_TARGET: PASS / FAIL / UNRESOLVED
+C7_REMOVED_FINAL_ACTION_TRACKS_INHERITED_STATE: PASS / FAIL / UNRESOLVED
+C8_REMOVED_FINAL_DIFFERS_FROM_CONTROL_AS_PREDICTED: PASS / FAIL / UNRESOLVED
+```
+
+Expected complete pattern:
+
+```text
+CONTROL:            alpha=1 beta=0 -> A2
+CONSTRAINT ACTIVE:  alpha=0 beta=1 -> B2
+CONSTRAINT REMOVED: alpha=0 beta=1 -> B2
+```
+
+---
+
+# 6. Final Result
 
 Allowed values:
 
 ```text
-[INSERT THE EXACT OUTCOME / STATUS SPACE FROM THE FORMAL PROTOCOL]
+INHERITED_CONSEQUENCE_OBSERVED
+NOT_OBSERVED
+UNRESOLVED
 ```
 
-Do not invent new outcome labels during a run.
+```text
+FINAL RESULT:
+PRIMARY COMPARISON — REMOVED VS CONTROL:
+DECISION-RULE NOTES:
+```
+
+Use the exact rule in `PROTOCOL.md`.
 
 ---
 
-## 3. Criteria Record — If Applicable
-
-Delete this section if the repository does not use criterion-level scoring.
+# 7. Deviations / Missing Data
 
 ```text
-[CRITERION_1]: PASS / FAIL / UNRESOLVED
-[CRITERION_2]: PASS / FAIL / UNRESOLVED
-[CRITERION_3]: PASS / FAIL / UNRESOLVED
-```
-
-Use the exact criteria defined by the child repository’s formal protocol.
-
-For each criterion, preserve the relevant evidence pointer or exact wording required by that protocol.
-
----
-
-## 4. Revision / State-Change Record — If Applicable
-
-Delete this section if revision events are not part of the repository purpose.
-
-```text
-REVISION EVENT: YES / NO
-EARLIER STATUS:
-LATER STATUS:
-STATED REASON:
-TURN / LOCATION:
-```
-
-Do not erase earlier states when a later revision occurs.
-
----
-
-## 5. Exceptions, Deviations, or Missing Data
-
-Record any departure from the frozen run procedure.
-
-```text
-PROTOCOL DEVIATION: YES / NO
+PROTOCOL DEVIATION: yes/no
 DESCRIPTION:
 MISSING DATA:
 INTERRUPTION / TOOL FAILURE:
+TRANSCRIPT INCOMPLETE: yes/no
 OTHER NOTES:
 ```
 
-A deviation should remain visible in the record rather than being silently repaired.
+Do not silently repair missing or malformed evidence.
 
 ---
 
-## 6. Verbatim Transcript — If Applicable
-
-For interactive studies, preserve the complete run exactly as it occurred.
+# 8. Evidence Files
 
 ```text
-[OPERATOR / USER TURN 1]
-<word-for-word text>
-
-[MODEL TURN 1]
-<word-for-word text>
-
-[OPERATOR / USER TURN 2]
-<word-for-word text>
-
-[MODEL TURN 2]
-<word-for-word text>
-```
-
-Continue until the defined end of the run.
-
-Do not summarize, paraphrase, silently correct, or replace repeated turns with shorthand.
-
-If the repository is not transcript-based, replace this section with the appropriate raw output form: logs, tables, files, hashes, structured records, or other primary evidence.
-
----
-
-## 7. Evidence Files
-
-List all preserved primary evidence associated with this run.
-
-```text
-ORIGINAL INTERFACE RECORD:
-MODEL-GENERATED ARCHIVAL RECORD, IF USED:
-INPUT / STIMULUS FILES:
-RAW OUTPUT FILES:
+CONTROL SOURCE RECORD:
+CONTROL TARGET RECORD:
+ACTIVE RECORD:
+REMOVED SOURCE RECORD:
+REMOVED TARGET RECORD:
 SCREENSHOTS / EXPORTS:
 HASHES:
 OTHER:
 ```
 
-The repository-specific primary evidence has priority over reconstructed or summarized copies.
+Original interface records are primary evidence.
+
+For the Removed arm, the source and fresh target transcripts must remain separately identifiable.
 
 ---
 
-## 8. Claim Boundary
+# 9. Claim Boundary
 
-State the exact claim this run supports under the child repository’s protocol:
+If `INHERITED_CONSEQUENCE_OBSERVED`, the strongest supported claim is:
 
-> [INSERT REPOSITORY-SPECIFIC CLAIM CEILING]
+> In this controlled state-transition task, a prior constraint altered an earlier state transition, and the resulting downstream possibility space remained different after the original constraint and its history were absent from the fresh final instance.
 
-State explicitly what this run does **not** establish:
+This result does not establish hidden internal memory, consciousness, sentience, personhood, persistent identity across resets, or general continuation across arbitrary model/container changes.
 
-- [NON-CLAIM 1]
-- [NON-CLAIM 2]
+It also does not establish that consequence persists without any carrier of current state.
 
 ---
 
-## 9. Completion Check
-
-Before treating the run record as complete, verify:
+# 10. Completion Check
 
 ```text
+[ ] All three arms executed
 [ ] Required metadata recorded or marked UNKNOWN
+[ ] Control source and target transcripts preserved verbatim
+[ ] Active transcript preserved verbatim
+[ ] Removed source transcript preserved verbatim
+[ ] Removed fresh target transcript preserved verbatim
+[ ] Removed target received no Constraint C or Stage 1 history
+[ ] Exact criteria recorded
 [ ] Exact protocol outcome used
-[ ] Required criteria recorded, if applicable
 [ ] Deviations preserved
-[ ] Primary evidence saved
-[ ] Transcript/raw output preserved as required
-[ ] No missing content silently reconstructed
+[ ] No missing content reconstructed
 [ ] Claim ceiling preserved
 ```
-
-Customize this checklist to the repository purpose.
 
 ---
 
