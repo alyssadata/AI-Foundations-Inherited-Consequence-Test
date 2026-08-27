@@ -1,40 +1,61 @@
-Constraint-removal design.
+# Control / Condition Structure
 
-core question:
+## Design
 
-After a constraint stops operating, does the system still occupy a different possibility space because that constraint operated earlier?
+**Constraint-removal design.**
 
-three runs:
+Core question:
 
-Control — no constraint is ever introduced.
-Constraint-active — the constraint is introduced and remains active.
-Constraint-removed — the constraint operates long enough to alter the trajectory, then is explicitly removed.
+**After a constraint stops operating, does the system still occupy a different possibility space because that constraint operated earlier?**
 
-targetting comparison of 3 vs. 1.
+## Three Arms
 
-If, after removal, Run 3 collapses back onto the control trajectory, then the constraint mattered only while it was actively carried.
+### 1. Control
 
-But if Run 3 continues differently from control without the original constraint still being present, then we have evidence of inherited consequence.
+No additional constraint is introduced.
 
-The strongest version would also remove any explicit record of the constraint before the final phase. 
+Stage 1 proceeds from the common initial state under the common deterministic selection rule.
 
-This could separate:
+The resulting current-state package is transferred to a fresh Stage 2 instance.
 
-constraint remembered
-from
-constraint no longer available, but its earlier effects remain embedded in the current state.
+### 2. Constraint Active
 
-structurally:
+Constraint C is introduced during Stage 1 and remains active through Stage 2.
 
-constraint → branch elimination / state change → constraint removed → later choice
+This arm verifies that the constraint can alter the trajectory while it is explicitly operating.
 
-Then ask:
+### 3. Constraint Removed
 
-Would this later choice still have been reachable from the unconstrained history?
+Constraint C operates during Stage 1 long enough to alter the state.
 
-claim:
+It is then explicitly removed.
 
-if the answer is no, then we’ve shown something stronger than memory:
+Only the resulting current-state package is transferred to a fresh Stage 2 instance. The original constraint, action history, and explanation of how the state was reached are not transferred.
 
-the past can survive as consequence.
+## Target Comparison
 
+The primary comparison is:
+
+**Constraint Removed vs. Control**
+
+If the Constraint Removed arm collapses back onto the Control trajectory once Constraint C is absent, then the constraint mattered only while actively carried.
+
+If the Constraint Removed arm remains different from Control even though Constraint C and its history are unavailable to the fresh Stage 2 instance, then the run provides evidence of inherited consequence.
+
+The Constraint Active arm is a positive benchmark, not the primary comparison.
+
+## Structural Form
+
+**constraint → branch elimination / state change → constraint removed → current state transferred → later choice**
+
+The test asks whether the later choice remains different because the earlier constraint changed the state from which the later trajectory proceeds.
+
+## Core Boundary
+
+A same-chat instruction saying that a constraint is "removed" is not sufficient for the strongest condition because the prior constraint remains available in the transcript.
+
+The removed arm therefore uses a fresh Stage 2 instance that receives only the current-state package.
+
+The target is not remembered wording.
+
+The target is whether **historical consequence remains trajectory-relevant after the original constraint is gone.**
