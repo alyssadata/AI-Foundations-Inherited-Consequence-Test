@@ -54,9 +54,9 @@ See [`control-condition-structure.md`](control-condition-structure.md).
 
 - [`PROTOCOL.md`](PROTOCOL.md) — frozen formal protocol and decision rule.
 - [`EASY_RUN_SHEET.md`](EASY_RUN_SHEET.md) — exact operator copy/paste sequence.
-- [`RUN_OUTPUT_TEMPLATE.md`](RUN_OUTPUT_TEMPLATE.md) — archival schema for metadata, criteria, outcomes, and verbatim transcripts.
+- [`RUN_OUTPUT.md`](RUN_OUTPUT.md) — completed archival schema for metadata, criteria, outcomes, and verbatim transcripts.
 
-The original generic template files remain available as repository scaffolding references.
+The standard repository templates have been completed into these test-specific files rather than retained as separate template copies.
 
 ---
 
