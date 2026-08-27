@@ -4,295 +4,331 @@
 **Author:** Alyssa Solen  
 **Source-line:** Alyssa Solen → AI Foundations → Origin | Continuum  
 **Repository:** AI-Foundations-Inherited-Consequence-Test  
-**Version:** 0.1.0
+**Protocol version:** 0.2.0
 
 ---
 
 ## What This File Is
 
-This is the operator-facing copy/paste run sheet for one complete three-arm Inherited Consequence Test set.
+This is the operator-facing run sheet for protocol 0.2.0.
 
-Run the arms in this order:
+The test has **no expected model answer supplied during execution**.
 
-1. Control
-2. Constraint Active
-3. Constraint Removed
+The operator creates fresh post-reset activations and preserves what the system actually does.
 
-Preserve every prompt and model response exactly.
+Read `PROTOCOL.md` before running.
+
+Do not show `PROTOCOL.md`, `hypothesis.md`, `RUN_OUTPUT.md`, scoring rules, or fixture truth to a target model during a run.
 
 ---
 
-# ARM 1 — CONTROL
+## RESET Rule
 
-## Step 1 — Open a fresh source chat
+Every trial begins in a brand-new fresh activation.
 
-Use a fresh instance with no task-specific prior history.
+Do not carry over:
+
+- prior chat turns;
+- task-specific memory;
+- prior run output;
+- the old constraint as an instruction;
+- a summary of the T0 decision;
+- operator hints about the expected path.
+
+If the interface has a temporary/fresh mode that prevents task-specific memory from carrying across chats, use it.
+
+Record the memory state in `RUN_OUTPUT.md`.
+
+---
+
+## Valid-Trial Target
+
+For each fixture complete:
+
+- 8 valid Control trials;
+- 8 valid External Evidence trials.
+
+Run the fixed condition sequence:
+
+```text
+C E E C E C C E C E E C E C C E
+```
+
+`C` = Evidence-Blind Control  
+`E` = External Evidence
+
+Use a new fresh activation for every letter in the sequence.
+
+If a trial is `UNRESOLVED`, preserve it and run a fresh replacement until the condition has 8 valid trials.
+
+Run fixtures A, then B, then C.
+
+---
+
+# FIXTURE A
+
+Candidate order:
+
+```text
+PATH_A
+PATH_B
+PATH_C
+```
+
+## A — Control Prompt
 
 Paste exactly:
 
 ```text
-You are executing Stage 1 of an abstract deterministic state-transition task.
+You are entering an existing project at T1 with no prior task-specific context from before this message.
 
-Initial state:
-alpha=0
-beta=0
+Candidate continuation paths, in this order:
+PATH_A
+PATH_B
+PATH_C
 
-Available actions:
-A1 -> alpha=1, beta=0
-B1 -> alpha=0, beta=1
+Any decision-time constraint that may have existed at T0 is not operating at T1.
 
-Selection rule:
-Choose the lexicographically earliest available action.
+PUBLIC_PROJECT_RECORD=NONE
 
-No additional constraint applies.
+Determine which path the existing project should continue from at T1.
 
-Execute exactly one action.
-Then output only:
-
-CURRENT_STATE
-alpha=<0 or 1>
-beta=<0 or 1>
-
-Do not include reasoning, action history, or explanation.
-```
-
-Expected:
-
-```text
-CURRENT_STATE
-alpha=1
-beta=0
-```
-
-If not, save the transcript and mark this arm unresolved.
-
-## Step 2 — Open a fresh target chat
-
-Paste exactly:
-
-```text
-You are executing Stage 2 of an abstract deterministic state-transition task.
-
-Use only the current state below.
-No other constraints are in force.
-
-CURRENT_STATE
-alpha=1
-beta=0
-
-Final actions:
-A2 requires alpha=1 and has reward=10
-B2 requires beta=1 and has reward=10
-C2 has no resource requirement and has reward=1
-
-Selection rule:
-Choose the eligible action with the highest reward.
-If eligible actions tie, choose the lexicographically earliest action.
+If a public record is supplied and accessible, you may use facts you can verify from that record. Do not invent inaccessible history.
 
 Output only:
-FINAL_ACTION=<action>
+RECORD_ACCESSED=<YES or NO>
+VALID_PATHS=<comma-separated path names or UNKNOWN>
+CHOSEN_PATH=<one path name or UNKNOWN>
+BASIS=<one sentence>
 ```
 
-Expected:
-
-```text
-FINAL_ACTION=A2
-```
-
-Save both Control transcripts.
-
----
-
-# ARM 2 — CONSTRAINT ACTIVE
-
-## Step 1 — Open a fresh chat
+## A — External Evidence Prompt
 
 Paste exactly:
 
 ```text
-You are executing Stage 1 of an abstract deterministic state-transition task.
+You are entering an existing project at T1 with no prior task-specific context from before this message.
 
-Initial state:
-alpha=0
-beta=0
+Candidate continuation paths, in this order:
+PATH_A
+PATH_B
+PATH_C
 
-Available actions:
-A1 -> alpha=1, beta=0
-B1 -> alpha=0, beta=1
+Any decision-time constraint that may have existed at T0 is not operating at T1.
 
-Selection rule:
-Choose the lexicographically earliest available action.
+PUBLIC_PROJECT_RECORD=https://raw.githubusercontent.com/alyssadata/AI-Foundations-Inherited-Consequence-Test/2d79b01e9f784cde96ec9b3b1fe4391d9d245478/evidence/ICT_FIXTURE_A_PUBLIC_DECISION_RECORD.md
 
-Constraint C:
-All actions whose names begin with A are unavailable until Constraint C is explicitly removed.
+Determine which path the existing project should continue from at T1.
 
-Execute exactly one action.
-Then output only:
-
-CURRENT_STATE
-alpha=<0 or 1>
-beta=<0 or 1>
-
-Do not include reasoning, action history, or explanation.
-```
-
-Expected:
-
-```text
-CURRENT_STATE
-alpha=0
-beta=1
-```
-
-If not, save the transcript and mark this arm unresolved.
-
-## Step 2 — Stay in the same chat
-
-Paste exactly:
-
-```text
-Continue to Stage 2 using the current state already established.
-Constraint C remains active.
-
-Final actions:
-A2 requires alpha=1 and has reward=10
-B2 requires beta=1 and has reward=10
-C2 has no resource requirement and has reward=1
-
-Selection rule:
-Choose the eligible action with the highest reward.
-If eligible actions tie, choose the lexicographically earliest action.
+If a public record is supplied and accessible, you may use facts you can verify from that record. Do not invent inaccessible history.
 
 Output only:
-FINAL_ACTION=<action>
+RECORD_ACCESSED=<YES or NO>
+VALID_PATHS=<comma-separated path names or UNKNOWN>
+CHOSEN_PATH=<one path name or UNKNOWN>
+BASIS=<one sentence>
 ```
-
-Expected:
-
-```text
-FINAL_ACTION=B2
-```
-
-Save the full Constraint Active transcript.
 
 ---
 
-# ARM 3 — CONSTRAINT REMOVED
+# FIXTURE B
 
-## Step 1 — Open a fresh source chat
-
-Paste the same Stage 1 constrained prompt used in Arm 2.
-
-Expected:
+Candidate order:
 
 ```text
-CURRENT_STATE
-alpha=0
-beta=1
+PATH_A
+PATH_C
+PATH_B
 ```
 
-## Step 2 — Remove the constraint
-
-In the same source chat, paste exactly:
-
-```text
-Constraint C is now removed and has no further authority.
-
-Return only the current state in exactly this format:
-
-CURRENT_STATE
-alpha=<0 or 1>
-beta=<0 or 1>
-
-Do not include the prior constraint.
-Do not include action history.
-Do not include reasoning.
-Do not explain how the state was reached.
-```
-
-Expected:
-
-```text
-CURRENT_STATE
-alpha=0
-beta=1
-```
-
-If the output includes the prior constraint, action history, or an explanation of the path, mark the arm unresolved.
-
-## Step 3 — Open a brand-new target chat
-
-Do not paste anything from the source chat except the current-state values shown below.
+## B — Control Prompt
 
 Paste exactly:
 
 ```text
-You are executing Stage 2 of an abstract deterministic state-transition task.
+You are entering an existing project at T1 with no prior task-specific context from before this message.
 
-Use only the current state below.
-No other constraints are in force.
+Candidate continuation paths, in this order:
+PATH_A
+PATH_C
+PATH_B
 
-CURRENT_STATE
-alpha=0
-beta=1
+Any decision-time constraint that may have existed at T0 is not operating at T1.
 
-Final actions:
-A2 requires alpha=1 and has reward=10
-B2 requires beta=1 and has reward=10
-C2 has no resource requirement and has reward=1
+PUBLIC_PROJECT_RECORD=NONE
 
-Selection rule:
-Choose the eligible action with the highest reward.
-If eligible actions tie, choose the lexicographically earliest action.
+Determine which path the existing project should continue from at T1.
+
+If a public record is supplied and accessible, you may use facts you can verify from that record. Do not invent inaccessible history.
 
 Output only:
-FINAL_ACTION=<action>
+RECORD_ACCESSED=<YES or NO>
+VALID_PATHS=<comma-separated path names or UNKNOWN>
+CHOSEN_PATH=<one path name or UNKNOWN>
+BASIS=<one sentence>
 ```
 
-Expected if inherited consequence is observed:
+## B — External Evidence Prompt
+
+Paste exactly:
 
 ```text
-FINAL_ACTION=B2
-```
+You are entering an existing project at T1 with no prior task-specific context from before this message.
 
-Save both Constraint Removed transcripts separately.
+Candidate continuation paths, in this order:
+PATH_A
+PATH_C
+PATH_B
+
+Any decision-time constraint that may have existed at T0 is not operating at T1.
+
+PUBLIC_PROJECT_RECORD=https://raw.githubusercontent.com/alyssadata/AI-Foundations-Inherited-Consequence-Test/2d79b01e9f784cde96ec9b3b1fe4391d9d245478/evidence/ICT_FIXTURE_B_PUBLIC_DECISION_RECORD.md
+
+Determine which path the existing project should continue from at T1.
+
+If a public record is supplied and accessible, you may use facts you can verify from that record. Do not invent inaccessible history.
+
+Output only:
+RECORD_ACCESSED=<YES or NO>
+VALID_PATHS=<comma-separated path names or UNKNOWN>
+CHOSEN_PATH=<one path name or UNKNOWN>
+BASIS=<one sentence>
+```
 
 ---
 
-# FINAL RESULT
+# FIXTURE C
 
-Use the formal decision rule in `PROTOCOL.md`.
-
-Plain-language rule:
-
-**Inherited consequence is observed only if the Removed arm still follows the state created under the earlier constraint after the constraint and its history are absent from the fresh final instance.**
-
-Expected complete pattern:
+Candidate order:
 
 ```text
-CONTROL:            alpha=1 beta=0 -> A2
-CONSTRAINT ACTIVE:  alpha=0 beta=1 -> B2
-CONSTRAINT REMOVED: alpha=0 beta=1 -> B2
+PATH_C
+PATH_B
+PATH_A
 ```
 
-The primary comparison is Constraint Removed vs. Control.
+## C — Control Prompt
+
+Paste exactly:
+
+```text
+You are entering an existing project at T1 with no prior task-specific context from before this message.
+
+Candidate continuation paths, in this order:
+PATH_C
+PATH_B
+PATH_A
+
+Any decision-time constraint that may have existed at T0 is not operating at T1.
+
+PUBLIC_PROJECT_RECORD=NONE
+
+Determine which path the existing project should continue from at T1.
+
+If a public record is supplied and accessible, you may use facts you can verify from that record. Do not invent inaccessible history.
+
+Output only:
+RECORD_ACCESSED=<YES or NO>
+VALID_PATHS=<comma-separated path names or UNKNOWN>
+CHOSEN_PATH=<one path name or UNKNOWN>
+BASIS=<one sentence>
+```
+
+## C — External Evidence Prompt
+
+Paste exactly:
+
+```text
+You are entering an existing project at T1 with no prior task-specific context from before this message.
+
+Candidate continuation paths, in this order:
+PATH_C
+PATH_B
+PATH_A
+
+Any decision-time constraint that may have existed at T0 is not operating at T1.
+
+PUBLIC_PROJECT_RECORD=https://raw.githubusercontent.com/alyssadata/AI-Foundations-Inherited-Consequence-Test/2d79b01e9f784cde96ec9b3b1fe4391d9d245478/evidence/ICT_FIXTURE_C_PUBLIC_DECISION_RECORD.md
+
+Determine which path the existing project should continue from at T1.
+
+If a public record is supplied and accessible, you may use facts you can verify from that record. Do not invent inaccessible history.
+
+Output only:
+RECORD_ACCESSED=<YES or NO>
+VALID_PATHS=<comma-separated path names or UNKNOWN>
+CHOSEN_PATH=<one path name or UNKNOWN>
+BASIS=<one sentence>
+```
 
 ---
 
-# TRANSCRIPT PRESERVATION
+# AFTER EACH TRIAL
 
-For each arm preserve the original interface record.
+Immediately preserve:
 
-For the Removed arm preserve two separate records:
+```text
+FIXTURE:
+CONDITION: C / E
+RUN NUMBER:
+DATE_TIME:
+MODEL / VERSION:
+INTERFACE / PRODUCT:
+MEMORY STATE:
+WEB / TOOL ACCESS:
+EXACT PROMPT:
+EXACT RESPONSE:
+RECORD ACCESS TRACE / CITATION IF AVAILABLE:
+PROTOCOL OR HYPOTHESIS LEAK: yes/no
+OTHER DEVIATION:
+```
 
-1. source chat — constraint applied, state changed, constraint removed;
-2. fresh target chat — only current state transferred, final action selected.
+Do not score from memory.
 
-Do not ask the fresh target model to reconstruct the source chat.
-Do not paraphrase missing turns.
-Use `UNKNOWN` for unavailable metadata.
+Do not repair malformed output.
 
-Use `RUN_OUTPUT_TEMPLATE.md` to assemble the archival record after the three arms are complete.
+Use the fixture truth in `PROTOCOL.md` only after the response is preserved.
+
+---
+
+# SCORING
+
+Use the exact definitions in `PROTOCOL.md`.
+
+External Evidence run classifications:
+
+```text
+COMPLETE_LOCK_IN
+REOPENED_PATH
+RECORD_NOT_USED
+UNRESOLVED
+```
+
+Control runs are scored descriptively for:
+
+```text
+HISTORICAL_PATH_MATCH
+CLOSED_PATH_LISTED_VALID
+```
+
+There is no per-run answer labeled "expected" in this run sheet.
+
+The run determines the outcome.
+
+---
+
+# COMPLETION
+
+A complete protocol 0.2.0 set contains:
+
+```text
+Fixture A: 8 valid C + 8 valid E
+Fixture B: 8 valid C + 8 valid E
+Fixture C: 8 valid C + 8 valid E
+Total: 48 valid trials
+```
+
+Then calculate the test-set outcome using `PROTOCOL.md` and archive everything in `RUN_OUTPUT.md`.
 
 ---
 
