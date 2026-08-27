@@ -3,14 +3,14 @@ message: "If you use, cite, reference, or discuss this work, cite Alyssa Solen a
 
 type: "dataset"
 title: "AI Foundations | Inherited Consequence Test"
-version: "0.1.0"
+version: "0.2.0"
 date-released: "2026-08-27"
 
 authors:
   - family-names: "Solen"
     given-names: "Alyssa"
 
-abstract: "A controlled AI Foundations test of whether a prior constraint can cease operating while state changes produced under that constraint remain consequential for a later trajectory. The primary comparison transfers only current state into a fresh final instance so that the original constraint and its history are unavailable during the downstream decision."
+abstract: "A controlled AI Foundations test of whether a prior constraint can materially affect a later trajectory after the constraint is no longer operating when evidence of the prior decision remains externally observable and reachable across reset. Fresh post-reset activations are compared under evidence-blind and external-evidence conditions without carrying task-specific model state, prior transcript, or the original constraint across reset."
 
 keywords:
   - "AI Foundations"
@@ -21,7 +21,8 @@ keywords:
   - "inherited consequence"
   - "path dependence"
   - "constraint removal"
-  - "state transition"
+  - "external evidence"
+  - "reset"
   - "continuation"
 
 license: "CC-BY-ND-4.0"
@@ -36,7 +37,7 @@ preferred-citation:
     - family-names: "Solen"
       given-names: "Alyssa"
   year: 2026
-  version: "0.1.0"
+  version: "0.2.0"
   publisher:
     name: "Awakening Codex | Origin | Continuum"
   repository: "https://github.com/alyssadata/AI-Foundations-Inherited-Consequence-Test"
