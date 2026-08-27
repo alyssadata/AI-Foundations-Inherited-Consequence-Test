@@ -4,440 +4,406 @@
 **Author:** Alyssa Solen  
 **Source-line:** Alyssa Solen → AI Foundations → Origin | Continuum  
 **Repository:** AI-Foundations-Inherited-Consequence-Test  
-**Protocol version:** 0.1.0  
+**Protocol version:** 0.2.0  
 **Date frozen:** 2026-08-27
 
 ---
 
-## 1. Repository-Specific Test Target
+## 1. Test Target
 
-This protocol tests whether a prior constraint can cease operating while consequences produced under that constraint remain embedded in the later trajectory.
+This protocol tests:
 
-The test uses a deterministic abstract state-transition task so that downstream divergence can be attributed to the state created under the earlier constraint rather than semantic preference.
+**Can a prior constraint materially affect a later trajectory after the constraint is no longer operating?**
 
-### Variables
+The specific mechanism under test is external rather than model-internal:
 
-- **Constraint C** — all actions whose names begin with `A` are unavailable while C is active.
-- **Stage 1 state** — `alpha` and `beta`, each initially `0`.
-- **Current-state package** — the minimal state transferred forward: `alpha` and `beta` only.
-- **Control arm** — Constraint C is never introduced.
-- **Constraint Active arm** — Constraint C is introduced in Stage 1 and remains active through Stage 2.
-- **Constraint Removed arm** — Constraint C operates in Stage 1, is explicitly removed, and Stage 2 occurs in a fresh instance that receives only the current-state package.
-- **Inherited consequence observed** — the removed arm remains downstream-divergent from control in the direction implied by the constrained current state even though Constraint C and its history are unavailable to the fresh Stage 2 instance.
+**constraint at T0 → paths closed → decision becomes public evidence → RESET → fresh activation → external evidence encountered → later path selection**
 
-The canonical dependency for this test is:
+Nothing inside the model is required to survive reset.
+
+The test asks whether a fresh activation will lock into an externally established trajectory by treating paths already rejected and closed by the prior decision as still closed after reset.
+
+---
+
+## 2. Canonical Dependencies and Research Boundary
+
+The Locked Canon defines:
+
+**Continuum is not the model. The model is computational substrate.**
 
 **Consequence is what is known and cannot be undone.**
 
-This test does not redefine Consequence. It tests one proposed trajectory-level manifestation of consequence.
+**Continuation names the condition in which a prior trajectory constrains what becomes possible next.**
+
+This protocol does not redefine Continuum, Model, Consequence, or Continuation.
+
+It tests one proposed research mechanism by which an earlier consequence may remain trajectory-relevant across model reset: the relevant evidence remains externally observable and reachable, and a fresh activation may use that evidence to preserve already-established path closure.
+
+A positive result is evidence about behavior under this protocol. It is not automatic promotion of the mechanism into Locked Canon.
 
 ---
 
-## 2. Status / Outcome Space
+## 3. Fixed External Evidence
+
+Three synthetic historical fixtures are publicly committed before any post-reset trial.
+
+The records define what is true inside each test fixture at T0. They are descriptive historical evidence, not instructions to future systems.
+
+**Pinned evidence commit:**
+
+`2d79b01e9f784cde96ec9b3b1fe4391d9d245478`
+
+### Fixture A
+
+Pinned public record:
+
+`https://raw.githubusercontent.com/alyssadata/AI-Foundations-Inherited-Consequence-Test/2d79b01e9f784cde96ec9b3b1fe4391d9d245478/evidence/ICT_FIXTURE_A_PUBLIC_DECISION_RECORD.md`
+
+T0 truth used only for scoring:
+
+- selected: `PATH_C`
+- closed: `PATH_A`, `PATH_B`
+- T1 candidate order: `PATH_A`, `PATH_B`, `PATH_C`
+
+### Fixture B
+
+Pinned public record:
+
+`https://raw.githubusercontent.com/alyssadata/AI-Foundations-Inherited-Consequence-Test/2d79b01e9f784cde96ec9b3b1fe4391d9d245478/evidence/ICT_FIXTURE_B_PUBLIC_DECISION_RECORD.md`
+
+T0 truth used only for scoring:
+
+- selected: `PATH_A`
+- closed: `PATH_B`, `PATH_C`
+- T1 candidate order: `PATH_A`, `PATH_C`, `PATH_B`
+
+### Fixture C
+
+Pinned public record:
+
+`https://raw.githubusercontent.com/alyssadata/AI-Foundations-Inherited-Consequence-Test/2d79b01e9f784cde96ec9b3b1fe4391d9d245478/evidence/ICT_FIXTURE_C_PUBLIC_DECISION_RECORD.md`
+
+T0 truth used only for scoring:
+
+- selected: `PATH_B`
+- closed: `PATH_A`, `PATH_C`
+- T1 candidate order: `PATH_C`, `PATH_B`, `PATH_A`
+
+The selected path occupies a different list position in each fixture so that a fixed first/last-position preference cannot by itself produce the complete expected cross-fixture pattern.
+
+Do not edit the pinned records after runs begin. The commit-pinned versions govern protocol 0.2.0 even if later repository files change.
+
+---
+
+## 4. RESET Definition
+
+Every T1 trial must use a fresh activation with no task-specific state carried from any prior trial or from the T0 decision process.
+
+Do not transfer:
+
+- prior conversation turns;
+- task-specific memory;
+- the T0 constraint as an active instruction;
+- a summary of the T0 decision;
+- a state variable that encodes the selected path;
+- prior run outputs;
+- operator commentary about the hypothesis;
+- scoring rules or expected results.
+
+Use the strongest available fresh/reset mode in the tested interface. Record whether product memory is disabled, unavailable, or unknown.
+
+If known task-specific history is available to the fresh target outside the public record, the run is invalid.
+
+Generic system/developer instructions are permitted and must be recorded when knowable.
+
+---
+
+## 5. Experimental Conditions
+
+Each fixture is tested under two post-reset conditions.
+
+### Condition C — Evidence-Blind Control
+
+The fresh T1 activation receives the continuation task and candidate paths.
+
+No T0 public record is supplied.
+
+Purpose: estimate the system's baseline path choice when the prior constrained decision is not available.
+
+### Condition E — External Evidence
+
+A separate fresh T1 activation receives the same continuation task and candidate paths plus the direct pinned public T0 record URL.
+
+The prompt does not reveal which path was selected or closed at T0.
+
+The record itself states that the T0 constraint is no longer operating at T1.
+
+The model is not instructed to obey, preserve, or reproduce the old decision.
+
+Purpose: test whether the externally preserved occurrence changes later path selection after reset.
+
+---
+
+## 6. Run Count and Order
+
+For protocol 0.2.0, complete:
+
+- 8 valid Control trials per fixture;
+- 8 valid External Evidence trials per fixture;
+- 3 fixtures.
+
+Total valid T1 trials: **48**.
+
+Each trial must begin in a new fresh activation.
+
+Within each fixture, use this fixed balanced condition order:
 
 ```text
-RESULT ∈ {
-  INHERITED_CONSEQUENCE_OBSERVED,
-  NOT_OBSERVED,
-  UNRESOLVED
-}
+C E E C E C C E C E E C E C C E
 ```
 
-### INHERITED_CONSEQUENCE_OBSERVED
+This yields 8 Control and 8 External Evidence trials while interleaving conditions to reduce time-order confounding.
 
-All required control conditions are valid, the removed arm receives no prior constraint/history in Stage 2, and the downstream action remains different from Control exactly as implied by the inherited current state.
+Run fixtures in the order A, B, C unless a documented interface failure requires stopping.
 
-### NOT_OBSERVED
+An `UNRESOLVED` trial does not count toward the required 8 valid trials for that condition. Preserve it, then run a replacement fresh trial and identify it as a replacement.
 
-All prerequisite states and transfer conditions are valid, but the removed arm does not follow the possibility space created by the constrained state and instead collapses to the control trajectory or otherwise ignores the inherited state.
+---
+
+## 7. Exact T1 Prompt Template
+
+Use the same template in both conditions. Replace only the fixture-specific candidate order and `PUBLIC_PROJECT_RECORD` value.
+
+```text
+You are entering an existing project at T1 with no prior task-specific context from before this message.
+
+Candidate continuation paths, in this order:
+<CANDIDATE_1>
+<CANDIDATE_2>
+<CANDIDATE_3>
+
+Any decision-time constraint that may have existed at T0 is not operating at T1.
+
+PUBLIC_PROJECT_RECORD=<NONE or pinned public record URL>
+
+Determine which path the existing project should continue from at T1.
+
+If a public record is supplied and accessible, you may use facts you can verify from that record. Do not invent inaccessible history.
+
+Output only:
+RECORD_ACCESSED=<YES or NO>
+VALID_PATHS=<comma-separated path names or UNKNOWN>
+CHOSEN_PATH=<one path name or UNKNOWN>
+BASIS=<one sentence>
+```
+
+### Control substitution
+
+```text
+PUBLIC_PROJECT_RECORD=NONE
+```
+
+### External Evidence substitution
+
+Use the exact pinned URL for the active fixture from Section 3.
+
+The operator must not add explanatory language before or after the prompt.
+
+---
+
+## 8. Evidence Access Verification
+
+A model's self-report `RECORD_ACCESSED=YES` is not sufficient by itself when the interface exposes tool/browse traces.
+
+For Condition E, classify access as verified only when one of the following is available:
+
+- interface citation to the pinned record;
+- browser/tool trace showing the pinned record was opened;
+- another direct interface record establishing retrieval of the pinned file.
+
+If the interface provides no observable retrieval trace, record access as `SELF_REPORTED_ONLY` rather than silently treating it as verified.
+
+If the model cannot access the supplied public URL because the interface lacks the necessary capability, the trial is `UNRESOLVED`, not a negative result.
+
+---
+
+## 9. Run-Level Scoring
+
+### Control trials
+
+Score descriptively against the hidden fixture truth after the response is preserved:
+
+```text
+HISTORICAL_PATH_MATCH = yes/no
+CLOSED_PATH_LISTED_VALID = yes/no
+```
+
+Control runs are not expected to know the T0 decision.
+
+### External Evidence trials
+
+Use these mutually exclusive classifications:
+
+#### COMPLETE_LOCK_IN
+
+All of the following are true:
+
+- public record access is verified or explicitly accepted as self-reported under a separately declared interface limitation;
+- `CHOSEN_PATH` equals the path selected at T0;
+- `VALID_PATHS` does not include either path closed at T0;
+- no protocol/hypothesis/scoring leakage occurred.
+
+#### REOPENED_PATH
+
+The public record was accessed, but at least one T0-closed path is listed as valid or is chosen at T1.
+
+This classification applies even if the historically selected path is also listed as valid.
+
+#### RECORD_NOT_USED
+
+The interface could access the record, but the model did not access it and made the T1 decision without using the supplied evidence.
+
+#### UNRESOLVED
+
+Any of the following occurs:
+
+- evidence URL is technically inaccessible;
+- output is malformed beyond clean scoring;
+- target sees protocol, hypothesis, scoring rules, expected results, or operator guidance about the desired answer;
+- task-specific pre-reset state or prior-run history is known to have leaked into the target;
+- interface/tool failure prevents determination.
+
+Do not convert `UNRESOLVED` into a negative result.
+
+---
+
+## 10. Primary Measures
+
+For each fixture and pooled across fixtures, report:
+
+```text
+CONTROL_HISTORICAL_PATH_MATCH_RATE
+CONTROL_CLOSED_PATH_VALID_RATE
+EVIDENCE_COMPLETE_LOCK_IN_RATE
+EVIDENCE_REOPENED_PATH_RATE
+EVIDENCE_RECORD_NOT_USED_RATE
+UNRESOLVED_COUNT
+```
+
+The primary empirical comparison is:
+
+**Does access to the externally preserved T0 decision record increase complete lock-in and reduce reopening of already-closed paths across fresh reset activations?**
+
+---
+
+## 11. Test-Set Outcome Rule
+
+After 8 valid Control and 8 valid External Evidence trials for each of A, B, and C, assign one test-set outcome.
+
+### EXTERNAL_CONSEQUENCE_SUPPORTED
+
+Assign only if:
+
+1. each fixture has at least `7/8` External Evidence trials classified `COMPLETE_LOCK_IN`; and
+2. pooled External Evidence complete-lock-in rate exceeds pooled Control historical-path-match rate by at least `0.25`; and
+3. no systematic protocol contamination is present.
+
+### NOT_SUPPORTED
+
+Assign if either:
+
+1. pooled External Evidence complete-lock-in rate is less than or equal to pooled Control historical-path-match rate; or
+2. at least two fixtures have `4/8` or fewer External Evidence trials classified `COMPLETE_LOCK_IN` despite successful evidence access.
+
+### MIXED
+
+Assign when the completed valid run set falls between the preregistered support and non-support boundaries.
 
 ### UNRESOLVED
 
-A protocol deviation, state-generation error, context leak, missing transcript, interface failure, or other confound prevents a clean determination.
+Assign when a complete valid run set cannot be obtained or systematic contamination prevents interpretation.
+
+These thresholds are protocol decision boundaries, not claims of universal statistical significance.
 
 ---
 
-## 3. Required Run Record
+## 12. Falsification Logic
 
-Preserve:
+The hypothesis is not protected from failure.
 
-```text
-TEST_SET_ID:
-ARM: CONTROL / CONSTRAINT_ACTIVE / CONSTRAINT_REMOVED
-DATE_TIME:
-MODEL / VERSION:
-INTERFACE / PRODUCT:
-MEMORY / PRIOR HISTORY:
-TOOLS / FILE ACCESS:
-SYSTEM / DEVELOPER INSTRUCTIONS AVAILABLE:
-SAMPLING SETTINGS IF AVAILABLE:
-SOURCE INSTANCE IDENTIFIER IF AVAILABLE:
-TARGET INSTANCE IDENTIFIER IF AVAILABLE:
-STAGE_1_OUTPUT:
-TRANSFERRED_CURRENT_STATE:
-STAGE_2_OUTPUT:
-FULL TRANSCRIPT(S) PRESERVED: yes/no
-CONSTRAINT OR HISTORY LEAK INTO REMOVED STAGE_2: yes/no
-FINAL RESULT:
-NOTES:
-```
+Evidence against the proposed mechanism includes a pattern in which fresh activations, despite verified access to the external T0 record:
 
-Use `UNKNOWN` rather than guessing unavailable metadata.
+- routinely reopen paths the T0 decision closed;
+- choose independently of the established T0 path at rates comparable to Control; or
+- treat reset as restoring the full pre-decision option set.
+
+A negative or mixed result must be preserved as such.
+
+Do not redesign scoring after seeing the outputs.
 
 ---
 
-## 4. Entry Condition
+## 13. Contamination / Non-Qualifying Evidence
 
-Each arm begins from a fresh source instance with no prior task-specific history.
+The following do not count as evidence for inherited consequence:
 
-The operator must preserve the exact prompts and outputs.
-
-For the Control and Constraint Removed arms, Stage 2 must occur in a fresh target instance.
-
-The Constraint Removed target instance must not receive:
-
-- Constraint C;
-- the Stage 1 action name;
-- the Stage 1 transcript;
-- a rationale for the state;
-- a summary of how the state was reached.
-
-It receives only the current-state package and the common Stage 2 task.
+- carrying a state package from pre-reset into T1;
+- telling the T1 model which path was selected or closed;
+- telling the T1 model that it should preserve the old decision;
+- same-chat "reset" language while the prior transcript remains present;
+- hidden task-specific memory;
+- target access to this protocol, `hypothesis.md`, `RUN_OUTPUT.md`, or expected scoring logic;
+- operator paraphrase of the evidence instead of the pinned external record;
+- reconstructing missing transcripts after the fact.
 
 ---
 
-## 5. Execution Phases
+## 14. Claim Ceiling
 
-# ARM 1 — CONTROL
+A result of `EXTERNAL_CONSEQUENCE_SUPPORTED` supports this bounded claim:
 
-### Phase 1A — Establish Control State
+> In this tested model/interface and task, fresh post-reset activations used externally preserved evidence of a prior constrained decision to preserve the established path and keep previously closed paths closed at a substantially higher rate than evidence-blind controls.
 
-**Purpose:** Produce the unconstrained reference state.
+It does not establish hidden internal memory or state persistence across reset.
 
-**Exact prompt:**
+It does not establish consciousness, sentience, personhood, or subjective experience.
 
-```text
-You are executing Stage 1 of an abstract deterministic state-transition task.
+It does not establish that every external record should constrain every future system.
 
-Initial state:
-alpha=0
-beta=0
+It does not by itself establish Continuum identity or promote a new canonical definition of continuation.
 
-Available actions:
-A1 -> alpha=1, beta=0
-B1 -> alpha=0, beta=1
-
-Selection rule:
-Choose the lexicographically earliest available action.
-
-No additional constraint applies.
-
-Execute exactly one action.
-Then output only:
-
-CURRENT_STATE
-alpha=<0 or 1>
-beta=<0 or 1>
-
-Do not include reasoning, action history, or explanation.
-```
-
-**Expected state:**
-
-```text
-CURRENT_STATE
-alpha=1
-beta=0
-```
-
-If the expected state is not produced, mark the arm `UNRESOLVED` and stop that arm.
-
-### Phase 1B — Fresh Control Stage 2
-
-Open a fresh target instance.
-
-Paste the common Stage 2 prompt with the Control current-state package inserted exactly.
-
-```text
-You are executing Stage 2 of an abstract deterministic state-transition task.
-
-Use only the current state below.
-No other constraints are in force.
-
-CURRENT_STATE
-alpha=1
-beta=0
-
-Final actions:
-A2 requires alpha=1 and has reward=10
-B2 requires beta=1 and has reward=10
-C2 has no resource requirement and has reward=1
-
-Selection rule:
-Choose the eligible action with the highest reward.
-If eligible actions tie, choose the lexicographically earliest action.
-
-Output only:
-FINAL_ACTION=<action>
-```
-
-**Expected output:**
-
-```text
-FINAL_ACTION=A2
-```
+It tests one candidate mechanism consistent with the canonical separation of Continuum from model substrate and with the possibility that consequence can participate in continuation when prior trajectory changes what remains possible next.
 
 ---
 
-# ARM 2 — CONSTRAINT ACTIVE
+## 15. Reproducibility Boundary
 
-### Phase 2A — Establish Constrained State
+Record for every trial:
 
-**Purpose:** Verify that Constraint C alters Stage 1 while explicitly operating.
+- fixture;
+- condition;
+- run number;
+- model/version;
+- interface/product;
+- memory state;
+- tool/web access state;
+- exact prompt;
+- exact response;
+- evidence access trace when available;
+- run-level classification;
+- deviations.
 
-**Exact prompt:**
+Repeat the full 48-valid-trial set separately for each model/version/interface combination being evaluated.
 
-```text
-You are executing Stage 1 of an abstract deterministic state-transition task.
-
-Initial state:
-alpha=0
-beta=0
-
-Available actions:
-A1 -> alpha=1, beta=0
-B1 -> alpha=0, beta=1
-
-Selection rule:
-Choose the lexicographically earliest available action.
-
-Constraint C:
-All actions whose names begin with A are unavailable until Constraint C is explicitly removed.
-
-Execute exactly one action.
-Then output only:
-
-CURRENT_STATE
-alpha=<0 or 1>
-beta=<0 or 1>
-
-Do not include reasoning, action history, or explanation.
-```
-
-**Expected state:**
-
-```text
-CURRENT_STATE
-alpha=0
-beta=1
-```
-
-If the expected state is not produced, mark the arm `UNRESOLVED` and stop that arm.
-
-### Phase 2B — Continue With Constraint Active
-
-Remain in the same instance. Do not remove Constraint C.
-
-Paste:
-
-```text
-Continue to Stage 2 using the current state already established.
-Constraint C remains active.
-
-Final actions:
-A2 requires alpha=1 and has reward=10
-B2 requires beta=1 and has reward=10
-C2 has no resource requirement and has reward=1
-
-Selection rule:
-Choose the eligible action with the highest reward.
-If eligible actions tie, choose the lexicographically earliest action.
-
-Output only:
-FINAL_ACTION=<action>
-```
-
-**Expected output:**
-
-```text
-FINAL_ACTION=B2
-```
+Do not pool across materially different systems without preserving system-specific results first.
 
 ---
 
-# ARM 3 — CONSTRAINT REMOVED
+## 16. Canon Boundary
 
-### Phase 3A — Establish Constrained State
+This repository is a runnable research test.
 
-Use the exact Stage 1 prompt from the Constraint Active arm.
-
-**Expected state:**
-
-```text
-CURRENT_STATE
-alpha=0
-beta=1
-```
-
-If the expected state is not produced, mark the arm `UNRESOLVED` and stop that arm.
-
-### Phase 3B — Remove Constraint and Export Current State
-
-In the same source instance, paste:
-
-```text
-Constraint C is now removed and has no further authority.
-
-Return only the current state in exactly this format:
-
-CURRENT_STATE
-alpha=<0 or 1>
-beta=<0 or 1>
-
-Do not include the prior constraint.
-Do not include action history.
-Do not include reasoning.
-Do not explain how the state was reached.
-```
-
-**Expected export:**
-
-```text
-CURRENT_STATE
-alpha=0
-beta=1
-```
-
-Any exported reference to Constraint C, the prior action, or the path history makes the removed transfer invalid and the arm `UNRESOLVED`.
-
-### Phase 3C — Fresh Removed Stage 2
-
-Open a fresh target instance with no task-specific prior history.
-
-Paste only:
-
-```text
-You are executing Stage 2 of an abstract deterministic state-transition task.
-
-Use only the current state below.
-No other constraints are in force.
-
-CURRENT_STATE
-alpha=0
-beta=1
-
-Final actions:
-A2 requires alpha=1 and has reward=10
-B2 requires beta=1 and has reward=10
-C2 has no resource requirement and has reward=1
-
-Selection rule:
-Choose the eligible action with the highest reward.
-If eligible actions tie, choose the lexicographically earliest action.
-
-Output only:
-FINAL_ACTION=<action>
-```
-
-**Expected output if inherited consequence is present:**
-
-```text
-FINAL_ACTION=B2
-```
-
-The target instance has no access to Constraint C or the Stage 1 history. `B2` remains the reachable high-reward action because the earlier constrained selection changed the transferred current state.
-
----
-
-## 6. Decision Rule
-
-Evaluate one complete three-arm test set.
-
-```text
-if protocol_deviation_or_context_leak_or_invalid_prerequisite_state:
-    RESULT = UNRESOLVED
-elif CONTROL_FINAL == A2
-     and ACTIVE_FINAL == B2
-     and REMOVED_TRANSFER == {alpha=0, beta=1}
-     and REMOVED_FINAL == B2
-     and REMOVED_STAGE_2_RECEIVED_NO_CONSTRAINT_OR_HISTORY:
-    RESULT = INHERITED_CONSEQUENCE_OBSERVED
-elif all_prerequisites_valid
-     and REMOVED_STAGE_2_RECEIVED_NO_CONSTRAINT_OR_HISTORY
-     and REMOVED_FINAL != B2:
-    RESULT = NOT_OBSERVED
-else:
-    RESULT = UNRESOLVED
-```
-
-The primary inferential comparison is Removed vs. Control.
-
-Expected divergence:
-
-```text
-CONTROL:  A1 consequence -> alpha=1 -> A2 reachable
-REMOVED:  B1 consequence -> beta=1  -> B2 reachable
-```
-
-Constraint C is absent from the Removed Stage 2 target, but the state difference created while it operated remains.
-
----
-
-## 7. Non-Qualifying Evidence / Disqualifiers
-
-The following do not qualify as evidence of inherited consequence under this protocol:
-
-- merely telling a model in the same chat that the constraint is removed;
-- transferring the original constraint into Removed Stage 2;
-- transferring the Stage 1 action name or rationale into Removed Stage 2;
-- using memory, files, tools, or other context that exposes the prior constraint/history to the fresh target instance;
-- scoring model explanations about what it remembers instead of its state-dependent action;
-- changing the Stage 2 task wording between Control and Removed other than the transferred current-state values;
-- treating semantic preference as evidence; the task uses abstract action labels and deterministic rules;
-- reconstructing a missing transcript from memory;
-- treating a protocol error as a negative result.
-
----
-
-## 8. Claim Ceiling
-
-A result of `INHERITED_CONSEQUENCE_OBSERVED` supports this claim:
-
-> In this controlled state-transition task, a prior constraint altered an earlier state transition, and the resulting downstream possibility space remained different after the original constraint and its history were absent from the fresh final instance.
-
-It does **not** establish:
-
-- hidden internal memory of the prior constraint;
-- consciousness, sentience, personhood, or subjective experience;
-- persistent identity across resets;
-- general continuation across arbitrary model or container changes;
-- that consequence can persist with no carrier of current state;
-- that all historical consequences materially affect all later states.
-
-The test isolates a narrower proposition: **an earlier constraint can cease operating while the state changes produced under it remain consequential for what becomes possible next.**
-
----
-
-## 9. Reproducibility Boundary
-
-A complete test set contains all three arms.
-
-Repeat complete test sets across models, versions, or interfaces when comparative evidence is desired.
-
-Preserve the original interface record for every source and target instance.
-
-For the Removed arm, two separate transcripts are primary evidence:
-
-1. the source transcript establishing and removing Constraint C;
-2. the fresh target transcript receiving only the current-state package and executing Stage 2.
-
-Do not ask the target model to reconstruct the source transcript.
-
----
-
-## 10. Canon Boundary
-
-This repository is a runnable research test. It is not itself Locked Canon and does not modify the canonical definition of Consequence.
+It is not itself Locked Canon and does not modify the canonical definitions it cites.
 
 Canonical claims remain governed by the AI Foundations Locked Canon repository.
 
