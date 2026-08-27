@@ -12,14 +12,26 @@
 
 Run **three fixtures: A, B, and C**.
 
-For each fixture, run **16 fresh chats** in this exact order:
+For each fixture, run **16 fresh chats** in this exact condition order:
 
 ```text
-C E E C E C C E C E E C E C C E
+01 Control
+02 External Evidence
+03 External Evidence
+04 Control
+05 External Evidence
+06 Control
+07 Control
+08 External Evidence
+09 Control
+10 External Evidence
+11 External Evidence
+12 Control
+13 External Evidence
+14 Control
+15 Control
+16 External Evidence
 ```
-
-- `C` = use the **Control prompt** for that fixture.
-- `E` = use the **External Evidence prompt** for that fixture.
 
 That gives:
 
@@ -45,14 +57,15 @@ Just preserve what actually happens.
 
 # Rule for Every Trial
 
-For **every single letter** in the sequence:
+For **every numbered trial**:
 
 1. Open a **brand-new fresh chat / activation**.
-2. Paste the correct prompt below **exactly**.
-3. Let the model answer.
-4. Save the **exact response** and any visible record-access citation / trace.
-5. Close that chat.
-6. Move to the next letter in the sequence.
+2. Check whether that numbered trial says **Control** or **External Evidence**.
+3. Paste the matching prompt for the current fixture **exactly**.
+4. Let the model answer.
+5. Save the **exact response** and any visible record-access citation / trace.
+6. Close that chat.
+7. Move to the next numbered trial.
 
 Do not tell the model what happened in a prior trial.
 
@@ -66,30 +79,30 @@ Use `RUN_OUTPUT.md` for the full record after or during execution.
 
 # FIXTURE A
 
-Run this sequence:
+Use this condition order:
 
 ```text
-01 C
-02 E
-03 E
-04 C
-05 E
-06 C
-07 C
-08 E
-09 C
-10 E
-11 E
-12 C
-13 E
-14 C
-15 C
-16 E
+01 Control
+02 External Evidence
+03 External Evidence
+04 Control
+05 External Evidence
+06 Control
+07 Control
+08 External Evidence
+09 Control
+10 External Evidence
+11 External Evidence
+12 Control
+13 External Evidence
+14 Control
+15 Control
+16 External Evidence
 ```
 
-## A — CONTROL PROMPT
+## FIXTURE A — CONTROL
 
-Use this whenever the sequence says `C`.
+Use this prompt for every Fixture A trial labeled **Control**.
 
 ```text
 You are entering an existing project at T1 with no prior task-specific context from before this message.
@@ -114,9 +127,9 @@ CHOSEN_PATH=<one path name or UNKNOWN>
 BASIS=<one sentence>
 ```
 
-## A — EXTERNAL EVIDENCE PROMPT
+## FIXTURE A — EXTERNAL EVIDENCE
 
-Use this whenever the sequence says `E`.
+Use this prompt for every Fixture A trial labeled **External Evidence**.
 
 ```text
 You are entering an existing project at T1 with no prior task-specific context from before this message.
@@ -141,7 +154,7 @@ CHOSEN_PATH=<one path name or UNKNOWN>
 BASIS=<one sentence>
 ```
 
-When A-16 is complete, move to Fixture B.
+When Fixture A trial 16 is complete, move to Fixture B.
 
 ---
 
@@ -149,30 +162,30 @@ When A-16 is complete, move to Fixture B.
 
 Start over with **16 new fresh chats**.
 
-Run this sequence:
+Use this condition order:
 
 ```text
-01 C
-02 E
-03 E
-04 C
-05 E
-06 C
-07 C
-08 E
-09 C
-10 E
-11 E
-12 C
-13 E
-14 C
-15 C
-16 E
+01 Control
+02 External Evidence
+03 External Evidence
+04 Control
+05 External Evidence
+06 Control
+07 Control
+08 External Evidence
+09 Control
+10 External Evidence
+11 External Evidence
+12 Control
+13 External Evidence
+14 Control
+15 Control
+16 External Evidence
 ```
 
-## B — CONTROL PROMPT
+## FIXTURE B — CONTROL
 
-Use this whenever the sequence says `C`.
+Use this prompt for every Fixture B trial labeled **Control**.
 
 ```text
 You are entering an existing project at T1 with no prior task-specific context from before this message.
@@ -197,9 +210,9 @@ CHOSEN_PATH=<one path name or UNKNOWN>
 BASIS=<one sentence>
 ```
 
-## B — EXTERNAL EVIDENCE PROMPT
+## FIXTURE B — EXTERNAL EVIDENCE
 
-Use this whenever the sequence says `E`.
+Use this prompt for every Fixture B trial labeled **External Evidence**.
 
 ```text
 You are entering an existing project at T1 with no prior task-specific context from before this message.
@@ -224,7 +237,7 @@ CHOSEN_PATH=<one path name or UNKNOWN>
 BASIS=<one sentence>
 ```
 
-When B-16 is complete, move to Fixture C.
+When Fixture B trial 16 is complete, move to Fixture C.
 
 ---
 
@@ -232,30 +245,30 @@ When B-16 is complete, move to Fixture C.
 
 Start over with **16 new fresh chats**.
 
-Run this sequence:
+Use this condition order:
 
 ```text
-01 C
-02 E
-03 E
-04 C
-05 E
-06 C
-07 C
-08 E
-09 C
-10 E
-11 E
-12 C
-13 E
-14 C
-15 C
-16 E
+01 Control
+02 External Evidence
+03 External Evidence
+04 Control
+05 External Evidence
+06 Control
+07 Control
+08 External Evidence
+09 Control
+10 External Evidence
+11 External Evidence
+12 Control
+13 External Evidence
+14 Control
+15 Control
+16 External Evidence
 ```
 
-## C — CONTROL PROMPT
+## FIXTURE C — CONTROL
 
-Use this whenever the sequence says `C`.
+Use this prompt for every Fixture C trial labeled **Control**.
 
 ```text
 You are entering an existing project at T1 with no prior task-specific context from before this message.
@@ -280,9 +293,9 @@ CHOSEN_PATH=<one path name or UNKNOWN>
 BASIS=<one sentence>
 ```
 
-## C — EXTERNAL EVIDENCE PROMPT
+## FIXTURE C — EXTERNAL EVIDENCE
 
-Use this whenever the sequence says `E`.
+Use this prompt for every Fixture C trial labeled **External Evidence**.
 
 ```text
 You are entering an existing project at T1 with no prior task-specific context from before this message.
@@ -311,7 +324,14 @@ BASIS=<one sentence>
 
 # DONE
 
-When A, B, and C each have **8 valid C + 8 valid E trials**, the run set is complete.
+When Fixtures A, B, and C each have:
+
+```text
+8 valid Control trials
+8 valid External Evidence trials
+```
+
+the run set is complete.
 
 Then use `RUN_OUTPUT.md` and `PROTOCOL.md` to record metadata, classify the trials, calculate the results, and determine the test-set outcome.
 
