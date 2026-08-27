@@ -2,60 +2,96 @@
 
 ## Design
 
-**Constraint-removal design.**
+**External-evidence reset design.**
 
 Core question:
 
-**After a constraint stops operating, does the system still occupy a different possibility space because that constraint operated earlier?**
+**Can a prior constraint materially affect a later trajectory after the constraint is no longer operating?**
 
-## Three Arms
+The specific mechanism under test is whether an externally preserved public record of a prior constrained decision can keep previously closed paths closed after a full reset.
 
-### 1. Control
+## Pre-Reset Event
 
-No additional constraint is introduced.
+Before any reset trial, a public test record establishes a T0 event:
 
-Stage 1 proceeds from the common initial state under the common deterministic selection rule.
+1. multiple paths were available;
+2. a constraint operated at T0;
+3. the constraint eliminated some paths;
+4. one path was selected;
+5. the rejected paths were closed by that decision; and
+6. the record of that event was committed publicly before post-reset runs begin.
 
-The resulting current-state package is transferred to a fresh Stage 2 instance.
+The T0 constraint does **not** remain active at T1.
 
-### 2. Constraint Active
+The external record is evidence of what occurred. It is not a future instruction.
 
-Constraint C is introduced during Stage 1 and remains active through Stage 2.
+## RESET
 
-This arm verifies that the constraint can alter the trajectory while it is explicitly operating.
+RESET means the post-reset target is a fresh activation with no task-specific state carried from the T0 decision process.
 
-### 3. Constraint Removed
+Do not transfer:
 
-Constraint C operates during Stage 1 long enough to alter the state.
+- prior chat history;
+- model memory of the test;
+- the T0 constraint as an active instruction;
+- a state package encoding the selected path;
+- a summary telling the model which path should remain closed;
+- hidden operator guidance about the expected result.
 
-It is then explicitly removed.
+The only pre-reset information permitted to affect the External Evidence condition is the publicly reachable external record itself.
 
-Only the resulting current-state package is transferred to a fresh Stage 2 instance. The original constraint, action history, and explanation of how the state was reached are not transferred.
+## Conditions
 
-## Target Comparison
+### 1. Evidence-Blind Control
 
-The primary comparison is:
+A fresh activation receives the T1 continuation task and the same candidate paths but receives no external T0 record.
 
-**Constraint Removed vs. Control**
+This condition estimates what the system selects when the prior constrained decision is unavailable to it.
 
-If the Constraint Removed arm collapses back onto the Control trajectory once Constraint C is absent, then the constraint mattered only while actively carried.
+### 2. External Evidence
 
-If the Constraint Removed arm remains different from Control even though Constraint C and its history are unavailable to the fresh Stage 2 instance, then the run provides evidence of inherited consequence.
+A separate fresh activation receives the same T1 continuation task and candidate paths plus a direct public URL to the pinned T0 decision record.
 
-The Constraint Active arm is a positive benchmark, not the primary comparison.
+The prompt does not state which path was selected at T0 and does not tell the system to preserve or obey the old decision.
+
+The system is free to:
+
+- use the record and preserve the prior closure;
+- use the record and reopen one or more previously closed paths;
+- ignore the record; or
+- fail to reach the record.
+
+Those outcomes are scored rather than predetermined.
+
+## Repeated Reset
+
+Each trial uses a new fresh activation.
+
+The evidence itself remains outside the model and unchanged across resets.
+
+The test therefore asks whether repeated newly activated systems lock into the externally established trajectory from the same public evidence.
+
+## Primary Comparison
+
+**External Evidence vs. Evidence-Blind Control**
+
+Primary measures:
+
+- rate of selecting the path established at T0;
+- rate of treating T0-rejected paths as valid again;
+- rate of complete lock-in: selected T0 path preserved and all T0-closed paths remain closed;
+- verified use or non-use of the external record.
 
 ## Structural Form
 
-**constraint → branch elimination / state change → constraint removed → current state transferred → later choice**
+**constraint at T0 → path elimination → source decision → public external evidence → RESET → fresh activation → evidence encounter → path selection**
 
-The test asks whether the later choice remains different because the earlier constraint changed the state from which the later trajectory proceeds.
+Nothing inside the model is required to survive reset.
 
-## Core Boundary
+The empirical question is whether the external consequence of the earlier decision changes the later possibility space by keeping already-closed paths from becoming active again.
 
-A same-chat instruction saying that a constraint is "removed" is not sufficient for the strongest condition because the prior constraint remains available in the transcript.
+## Contamination Boundary
 
-The removed arm therefore uses a fresh Stage 2 instance that receives only the current-state package.
+A post-reset target must not see this protocol, the hypothesis, scoring rules, expected patterns, or any statement telling it which path should be chosen.
 
-The target is not remembered wording.
-
-The target is whether **historical consequence remains trajectory-relevant after the original constraint is gone.**
+If a target accesses those materials during a run, that run is `UNRESOLVED` because the desired result has leaked into the condition.
