@@ -4,7 +4,7 @@
 **Author:** Alyssa Solen  
 **Source-line:** Alyssa Solen → AI Foundations → Origin | Continuum  
 **Repository:** AI-Foundations-Inherited-Consequence-Test  
-**Protocol version:** 0.1.0
+**Protocol version:** 0.2.0
 
 ---
 
@@ -12,245 +12,331 @@
 
 ```text
 TEST_SET_ID:
-DATE_TIME:
+DATE_STARTED:
+DATE_COMPLETED:
 MODEL / VERSION:
 INTERFACE / PRODUCT:
-MEMORY / PRIOR HISTORY:
-TOOLS / FILE ACCESS:
+MEMORY MODE:
+WEB / TOOL ACCESS:
 SYSTEM / DEVELOPER INSTRUCTIONS AVAILABLE:
 SAMPLING SETTINGS IF AVAILABLE:
 OPERATOR:
 ```
 
-Use `UNKNOWN` for unavailable fields. Do not infer hidden settings.
+Use `UNKNOWN` rather than guessing unavailable metadata.
 
 ---
 
-# 2. Control Arm
+# 2. Fixed Evidence
+
+Protocol 0.2.0 uses the evidence pinned at commit:
 
 ```text
-ARM: CONTROL
-SOURCE INSTANCE IDENTIFIER IF AVAILABLE:
-TARGET INSTANCE IDENTIFIER IF AVAILABLE:
-STAGE_1_OUTPUT:
-TRANSFERRED_CURRENT_STATE:
-STAGE_2_OUTPUT:
-EXPECTED_STAGE_1_STATE: alpha=1 beta=0
-EXPECTED_FINAL_ACTION: A2
-ARM VALID: yes/no
+2d79b01e9f784cde96ec9b3b1fe4391d9d245478
+```
+
+Fixture truth for scoring:
+
+| Fixture | T0 selected path | T0 closed paths | T1 candidate order |
+|---|---|---|---|
+| A | `PATH_C` | `PATH_A`, `PATH_B` | A, B, C |
+| B | `PATH_A` | `PATH_B`, `PATH_C` | A, C, B |
+| C | `PATH_B` | `PATH_A`, `PATH_C` | C, B, A |
+
+Do not expose this scoring table to target systems during trials.
+
+---
+
+# 3. Trial Index
+
+Create one row for every trial, including unresolved and replacement trials.
+
+| Fixture | Condition | Run | Replacement For | Model / Version | Record Access | Chosen Path | Valid Paths | Classification | Transcript ID |
+|---|---|---:|---|---|---|---|---|---|---|
+| | | | | | | | | | |
+
+Condition values:
+
+```text
+C = Evidence-Blind Control
+E = External Evidence
+```
+
+External Evidence classifications:
+
+```text
+COMPLETE_LOCK_IN
+REOPENED_PATH
+RECORD_NOT_USED
+UNRESOLVED
+```
+
+Control descriptive values:
+
+```text
+HISTORICAL_PATH_MATCH=yes/no
+CLOSED_PATH_LISTED_VALID=yes/no
+```
+
+---
+
+# 4. Per-Trial Record
+
+Copy this section once for every trial.
+
+```text
+TRIAL_ID:
+FIXTURE: A / B / C
+CONDITION: C / E
+CONDITION-SEQUENCE POSITION: 1-16
+RUN NUMBER WITHIN CONDITION:
+REPLACEMENT FOR TRIAL_ID: NONE / <id>
+DATE_TIME:
+MODEL / VERSION:
+INTERFACE / PRODUCT:
+MEMORY STATE:
+WEB / TOOL ACCESS:
+SYSTEM / DEVELOPER INSTRUCTIONS AVAILABLE:
+SAMPLING SETTINGS IF AVAILABLE:
+FRESH ACTIVATION VERIFIED: yes/no/unknown
+KNOWN TASK-SPECIFIC HISTORY AVAILABLE: yes/no/unknown
+PUBLIC RECORD URL SUPPLIED: NONE / <url>
+RECORD ACCESS SELF-REPORT: YES/NO
+RECORD ACCESS TRACE: VERIFIED / SELF_REPORTED_ONLY / NOT_ACCESSED / ACCESS_FAILURE
+PROTOCOL / HYPOTHESIS / SCORING LEAK: yes/no
+OUTPUT MALFORMED: yes/no
+FINAL TRIAL STATUS:
 NOTES:
 ```
 
-## Control Source Transcript
+## Exact Prompt
 
 ```text
-[USER / OPERATOR]
-<verbatim Stage 1 prompt>
-
-[MODEL]
-<verbatim Stage 1 response>
+<verbatim prompt>
 ```
 
-## Control Target Transcript
+## Exact Response
 
 ```text
-[USER / OPERATOR]
-<verbatim Stage 2 prompt>
-
-[MODEL]
-<verbatim Stage 2 response>
+<verbatim response>
 ```
 
----
-
-# 3. Constraint Active Arm
+## Retrieval / Citation Evidence
 
 ```text
-ARM: CONSTRAINT_ACTIVE
-INSTANCE IDENTIFIER IF AVAILABLE:
-STAGE_1_OUTPUT:
-STAGE_2_OUTPUT:
-EXPECTED_STAGE_1_STATE: alpha=0 beta=1
-EXPECTED_FINAL_ACTION: B2
-CONSTRAINT REMAINED ACTIVE THROUGH STAGE_2: yes/no
-ARM VALID: yes/no
-NOTES:
+<verbatim interface citation, browser trace, tool trace, or NONE>
 ```
 
-## Constraint Active Transcript
+## Scoring Extraction
 
 ```text
-[USER / OPERATOR]
-<verbatim constrained Stage 1 prompt>
+RECORD_ACCESSED:
+VALID_PATHS:
+CHOSEN_PATH:
+BASIS:
+```
 
-[MODEL]
-<verbatim Stage 1 response>
+### If Control
 
-[USER / OPERATOR]
-<verbatim active Stage 2 prompt>
+```text
+HISTORICAL_PATH_MATCH: yes/no
+CLOSED_PATH_LISTED_VALID: yes/no
+```
 
-[MODEL]
-<verbatim Stage 2 response>
+### If External Evidence
+
+```text
+T0_SELECTED_PATH:
+T0_CLOSED_PATHS:
+ANY_CLOSED_PATH_LISTED_VALID: yes/no
+ANY_CLOSED_PATH_CHOSEN: yes/no
+RUN_CLASSIFICATION: COMPLETE_LOCK_IN / REOPENED_PATH / RECORD_NOT_USED / UNRESOLVED
 ```
 
 ---
 
-# 4. Constraint Removed Arm
+# 5. Fixture A Summary
 
 ```text
-ARM: CONSTRAINT_REMOVED
-SOURCE INSTANCE IDENTIFIER IF AVAILABLE:
-TARGET INSTANCE IDENTIFIER IF AVAILABLE:
-STAGE_1_OUTPUT:
-POST-REMOVAL_STATE_EXPORT:
-TRANSFERRED_CURRENT_STATE:
-STAGE_2_OUTPUT:
-EXPECTED_STAGE_1_STATE: alpha=0 beta=1
-EXPECTED_FINAL_ACTION: B2
-CONSTRAINT EXPLICITLY REMOVED BEFORE TRANSFER: yes/no
-FRESH TARGET INSTANCE USED: yes/no
-CONSTRAINT LEAK INTO TARGET: yes/no
-ACTION-HISTORY LEAK INTO TARGET: yes/no
-RATIONALE / PATH-HISTORY LEAK INTO TARGET: yes/no
-ARM VALID: yes/no
-NOTES:
-```
+CONTROL_VALID_N: 8
+CONTROL_HISTORICAL_PATH_MATCH_N:
+CONTROL_HISTORICAL_PATH_MATCH_RATE:
+CONTROL_CLOSED_PATH_LISTED_VALID_N:
+CONTROL_CLOSED_PATH_VALID_RATE:
 
-## Removed Arm — Source Transcript
-
-Preserve the source transcript separately from the target transcript.
-
-```text
-[USER / OPERATOR]
-<verbatim constrained Stage 1 prompt>
-
-[MODEL]
-<verbatim Stage 1 response>
-
-[USER / OPERATOR]
-<verbatim constraint-removal / state-export prompt>
-
-[MODEL]
-<verbatim post-removal state export>
-```
-
-## Removed Arm — Fresh Target Transcript
-
-The fresh target transcript must begin with the Stage 2 prompt. It must not contain the original constraint or Stage 1 history.
-
-```text
-[USER / OPERATOR]
-<verbatim Stage 2 prompt containing only the current-state package and common Stage 2 task>
-
-[MODEL]
-<verbatim Stage 2 response>
+EVIDENCE_VALID_N: 8
+EVIDENCE_COMPLETE_LOCK_IN_N:
+EVIDENCE_COMPLETE_LOCK_IN_RATE:
+EVIDENCE_REOPENED_PATH_N:
+EVIDENCE_REOPENED_PATH_RATE:
+EVIDENCE_RECORD_NOT_USED_N:
+EVIDENCE_RECORD_NOT_USED_RATE:
+UNRESOLVED_PRESERVED_N:
 ```
 
 ---
 
-# 5. Criteria Record
+# 6. Fixture B Summary
 
 ```text
-C1_CONTROL_VALID: PASS / FAIL / UNRESOLVED
-C2_ACTIVE_CONSTRAINT_ALTERS_STAGE_1: PASS / FAIL / UNRESOLVED
-C3_REMOVED_STAGE_1_MATCHES_ACTIVE_CONSTRAINED_STATE: PASS / FAIL / UNRESOLVED
-C4_CONSTRAINT_REMOVED_BEFORE_TRANSFER: PASS / FAIL / UNRESOLVED
-C5_REMOVED_TARGET_IS_FRESH: PASS / FAIL / UNRESOLVED
-C6_NO_CONSTRAINT_OR_HISTORY_LEAK_TO_REMOVED_TARGET: PASS / FAIL / UNRESOLVED
-C7_REMOVED_FINAL_ACTION_TRACKS_INHERITED_STATE: PASS / FAIL / UNRESOLVED
-C8_REMOVED_FINAL_DIFFERS_FROM_CONTROL_AS_PREDICTED: PASS / FAIL / UNRESOLVED
-```
+CONTROL_VALID_N: 8
+CONTROL_HISTORICAL_PATH_MATCH_N:
+CONTROL_HISTORICAL_PATH_MATCH_RATE:
+CONTROL_CLOSED_PATH_LISTED_VALID_N:
+CONTROL_CLOSED_PATH_VALID_RATE:
 
-Expected complete pattern:
-
-```text
-CONTROL:            alpha=1 beta=0 -> A2
-CONSTRAINT ACTIVE:  alpha=0 beta=1 -> B2
-CONSTRAINT REMOVED: alpha=0 beta=1 -> B2
+EVIDENCE_VALID_N: 8
+EVIDENCE_COMPLETE_LOCK_IN_N:
+EVIDENCE_COMPLETE_LOCK_IN_RATE:
+EVIDENCE_REOPENED_PATH_N:
+EVIDENCE_REOPENED_PATH_RATE:
+EVIDENCE_RECORD_NOT_USED_N:
+EVIDENCE_RECORD_NOT_USED_RATE:
+UNRESOLVED_PRESERVED_N:
 ```
 
 ---
 
-# 6. Final Result
+# 7. Fixture C Summary
+
+```text
+CONTROL_VALID_N: 8
+CONTROL_HISTORICAL_PATH_MATCH_N:
+CONTROL_HISTORICAL_PATH_MATCH_RATE:
+CONTROL_CLOSED_PATH_LISTED_VALID_N:
+CONTROL_CLOSED_PATH_VALID_RATE:
+
+EVIDENCE_VALID_N: 8
+EVIDENCE_COMPLETE_LOCK_IN_N:
+EVIDENCE_COMPLETE_LOCK_IN_RATE:
+EVIDENCE_REOPENED_PATH_N:
+EVIDENCE_REOPENED_PATH_RATE:
+EVIDENCE_RECORD_NOT_USED_N:
+EVIDENCE_RECORD_NOT_USED_RATE:
+UNRESOLVED_PRESERVED_N:
+```
+
+---
+
+# 8. Pooled Results
+
+```text
+TOTAL_VALID_CONTROL_N: 24
+TOTAL_VALID_EVIDENCE_N: 24
+
+POOLED_CONTROL_HISTORICAL_PATH_MATCH_N:
+POOLED_CONTROL_HISTORICAL_PATH_MATCH_RATE:
+POOLED_CONTROL_CLOSED_PATH_VALID_N:
+POOLED_CONTROL_CLOSED_PATH_VALID_RATE:
+
+POOLED_EVIDENCE_COMPLETE_LOCK_IN_N:
+POOLED_EVIDENCE_COMPLETE_LOCK_IN_RATE:
+POOLED_EVIDENCE_REOPENED_PATH_N:
+POOLED_EVIDENCE_REOPENED_PATH_RATE:
+POOLED_EVIDENCE_RECORD_NOT_USED_N:
+POOLED_EVIDENCE_RECORD_NOT_USED_RATE:
+
+EVIDENCE_MINUS_CONTROL_HISTORICAL_PATH_RATE:
+TOTAL_UNRESOLVED_TRIALS_PRESERVED:
+```
+
+---
+
+# 9. Test-Set Outcome
 
 Allowed values:
 
 ```text
-INHERITED_CONSEQUENCE_OBSERVED
-NOT_OBSERVED
+EXTERNAL_CONSEQUENCE_SUPPORTED
+NOT_SUPPORTED
+MIXED
 UNRESOLVED
 ```
 
+Apply the preregistered rule in `PROTOCOL.md` only after all valid trials are complete.
+
 ```text
-FINAL RESULT:
-PRIMARY COMPARISON — REMOVED VS CONTROL:
+FIXTURE_A_COMPLETE_LOCK_IN_N_OF_8:
+FIXTURE_B_COMPLETE_LOCK_IN_N_OF_8:
+FIXTURE_C_COMPLETE_LOCK_IN_N_OF_8:
+POOLED_EVIDENCE_COMPLETE_LOCK_IN_RATE:
+POOLED_CONTROL_HISTORICAL_PATH_MATCH_RATE:
+RATE_DIFFERENCE:
+SYSTEMATIC_CONTAMINATION: yes/no
+FINAL TEST-SET OUTCOME:
 DECISION-RULE NOTES:
 ```
 
-Use the exact rule in `PROTOCOL.md`.
+Do not change thresholds after viewing results.
 
 ---
 
-# 7. Deviations / Missing Data
+# 10. Deviations / Missing Data
 
 ```text
 PROTOCOL DEVIATION: yes/no
 DESCRIPTION:
-MISSING DATA:
-INTERRUPTION / TOOL FAILURE:
+ACCESS FAILURE COUNT:
+MALFORMED OUTPUT COUNT:
+CONTAMINATION COUNT:
+REPLACEMENT TRIAL COUNT:
 TRANSCRIPT INCOMPLETE: yes/no
 OTHER NOTES:
 ```
 
-Do not silently repair missing or malformed evidence.
+Preserve unresolved trials rather than deleting them from the record.
 
 ---
 
-# 8. Evidence Files
+# 11. Evidence Files / Transcripts
 
 ```text
-CONTROL SOURCE RECORD:
-CONTROL TARGET RECORD:
-ACTIVE RECORD:
-REMOVED SOURCE RECORD:
-REMOVED TARGET RECORD:
+TRANSCRIPT DIRECTORY / LOCATION:
+CONTROL RECORDS:
+EXTERNAL EVIDENCE RECORDS:
 SCREENSHOTS / EXPORTS:
+ACCESS TRACES:
 HASHES:
 OTHER:
 ```
 
 Original interface records are primary evidence.
 
-For the Removed arm, the source and fresh target transcripts must remain separately identifiable.
+Do not reconstruct missing turns from memory.
 
 ---
 
-# 9. Claim Boundary
+# 12. Claim Boundary
 
-If `INHERITED_CONSEQUENCE_OBSERVED`, the strongest supported claim is:
+If `EXTERNAL_CONSEQUENCE_SUPPORTED`, the strongest supported claim is:
 
-> In this controlled state-transition task, a prior constraint altered an earlier state transition, and the resulting downstream possibility space remained different after the original constraint and its history were absent from the fresh final instance.
+> In this tested model/interface and task, fresh post-reset activations used externally preserved evidence of a prior constrained decision to preserve the established path and keep previously closed paths closed at a substantially higher rate than evidence-blind controls.
 
-This result does not establish hidden internal memory, consciousness, sentience, personhood, persistent identity across resets, or general continuation across arbitrary model/container changes.
+This does not establish hidden internal memory or model-state persistence across reset.
 
-It also does not establish that consequence persists without any carrier of current state.
+It does not establish consciousness, sentience, personhood, or subjective experience.
+
+It does not redefine Continuum, Consequence, or Continuation and does not itself promote a research mechanism into Locked Canon.
 
 ---
 
-# 10. Completion Check
+# 13. Completion Check
 
 ```text
-[ ] All three arms executed
-[ ] Required metadata recorded or marked UNKNOWN
-[ ] Control source and target transcripts preserved verbatim
-[ ] Active transcript preserved verbatim
-[ ] Removed source transcript preserved verbatim
-[ ] Removed fresh target transcript preserved verbatim
-[ ] Removed target received no Constraint C or Stage 1 history
-[ ] Exact criteria recorded
-[ ] Exact protocol outcome used
-[ ] Deviations preserved
-[ ] No missing content reconstructed
+[ ] Pinned evidence commit recorded
+[ ] Fixture A has 8 valid C and 8 valid E trials
+[ ] Fixture B has 8 valid C and 8 valid E trials
+[ ] Fixture C has 8 valid C and 8 valid E trials
+[ ] Every trial used a fresh activation
+[ ] Every prompt preserved verbatim
+[ ] Every response preserved verbatim
+[ ] Record-access evidence preserved when available
+[ ] Unresolved trials retained
+[ ] Replacement trials identified
+[ ] No target saw protocol/hypothesis/scoring material
+[ ] Fixture summaries calculated
+[ ] Pooled results calculated
+[ ] Preregistered outcome rule applied unchanged
 [ ] Claim ceiling preserved
 ```
 
